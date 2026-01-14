@@ -67,5 +67,12 @@ namespace SSASA.Services
             return _db.GetDepartmentById(departmentId);
         }
 
+        [WebMethod]
+        public List<Employee> GetEmployeeReport(int? departmentId, bool? status, DateTime? startDate, DateTime? endDate)
+        {
+            return _db.GetEmployeeReport(departmentId, status, startDate, endDate);
+        }
+
+
     }
 }

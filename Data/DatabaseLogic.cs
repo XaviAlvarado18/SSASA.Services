@@ -183,6 +183,58 @@ namespace SSASA.Services.Data
             }
         }
 
+        public List<Employee> GetEmployeeReport(int? departmentId, bool? status, DateTime? startDate, DateTime? endDate)
+        {
+            var list = new List<Employee>();
+
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            using (SqlCommand cmd = new SqlCommand("dbo.sp_GetEmployeeReport", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add("@DepartmentId", SqlDbType.Int).Value =
+                    departmentId.HasValue ? (object)departmentId.Value : DBNull.Value;
+
+                cmd.Parameters.Add("@Status", SqlDbType.Bit).Value =
+                    status.HasValue ? (object)status.Value : DBNull.Value;
+
+                cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value =
+                    startDate.HasValue ? (object)startDate.Value.Date : DBNull.Value;
+
+                cmd.Parameters.Add("@EndDate", SqlDbType.Date).Value =
+                    endDate.HasValue ? (object)endDate.Value.Date : DBNull.Value;
+
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        // Usa tu mapper del reporte (lo ideal es extenderlo para Age)
+                        list.Add(new Employee
+                        {
+                            EmployeeId = SafeGetInt(dr, "EmployeeId"),
+                            FullNames = SafeGetString(dr, "FullNames"),
+                            DPI = SafeGetString(dr, "DPI"),
+                            BirthDate = SafeGetDate(dr, "BirthDate"),
+                            HireDate = SafeGetDate(dr, "HireDate"),
+                            Gender = SafeGetChar(dr, "Gender"),
+                            DepartmentId = SafeGetInt(dr, "DepartmentId"),
+                            DepartmentName = SafeGetString(dr, "DepartmentName"),
+                            IsActive = SafeGetBool(dr, "EmployeeStatus"),
+                            Tenure = SafeGetString(dr, "Tenure"),
+
+                            // 👇 agrega estas propiedades en tu modelo Employee si aún no existen:
+                            Age = SafeGetInt(dr, "Age"),
+                            DepartmentIsActive = SafeGetBool(dr, "DepartmentStatus")
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+
+
 
         public List<Department> GetDepartments()
         {

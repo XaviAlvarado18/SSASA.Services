@@ -17,5 +17,9 @@ namespace SSASA.Services.Models
         // Report specific properties
         public string DepartmentName { get; set; }
         public string Tenure { get; set; }
+
+        public int Age { get; set; }
+
+        public bool DepartmentIsActive { get; set; }
     }
 }
