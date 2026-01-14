@@ -54,5 +54,11 @@ namespace SSASA.Services
         {
             return _db.DeleteEmployee(employeeId);
         }
+
+        [WebMethod(Description = "Devuelve la lista completa de departamentos")]
+        public List<Department> GetAllDepartments()
+        {
+            return _db.GetDepartments();
+        }
     }
 }
