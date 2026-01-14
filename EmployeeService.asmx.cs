@@ -60,5 +60,12 @@ namespace SSASA.Services
         {
             return _db.GetDepartments();
         }
+
+        [WebMethod]
+        public Department GetDepartmentById(int departmentId)
+        {
+            return _db.GetDepartmentById(departmentId);
+        }
+
     }
 }

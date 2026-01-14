@@ -169,18 +169,20 @@ namespace SSASA.Services.Data
         public bool SaveDepartment(Department dept)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
-            using (SqlCommand cmd = new SqlCommand("sp_SaveDepartment", con))
+            using (SqlCommand cmd = new SqlCommand("dbo.sp_SaveDepartment", con))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 cmd.Parameters.Add("@DepartmentId", SqlDbType.Int).Value = dept.DepartmentId;
-                cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 100).Value = dept.Name ?? (object)DBNull.Value;
+                cmd.Parameters.Add("@DepartmentName", SqlDbType.NVarChar, 100).Value =
+                    string.IsNullOrWhiteSpace(dept.Name) ? (object)DBNull.Value : dept.Name;
                 cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = dept.IsActive;
 
                 con.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
         }
+
 
         public List<Department> GetDepartments()
         {
@@ -279,6 +281,34 @@ namespace SSASA.Services.Data
                 Tenure = SafeGetString(dr, "Tenure")
             };
         }
+
+        public Department GetDepartmentById(int departmentId)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            using (SqlCommand cmd = new SqlCommand("dbo.sp_GetDepartmentById", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@DepartmentId", SqlDbType.Int).Value = departmentId;
+
+                con.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        return new Department
+                        {
+                            DepartmentId = SafeGetInt(dr, "DepartmentId"),
+                            Name = SafeGetString(dr, "Name"),
+                            IsActive = SafeGetBool(dr, "IsActive")
+                        };
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
 
         private static string SafeGetString(SqlDataReader dr, string col)
             => dr[col] == DBNull.Value ? null : dr[col].ToString();
